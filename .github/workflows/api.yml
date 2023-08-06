@@ -1,23 +1,67 @@
-name: learn-github-actions
+name: API Workflow
+run-name: API Workflow by @${{ github.actor }}
 on:
   workflow_dispatch:
+  pull_request:
   push:
-    branches:
-      - main
+    paths:
+      - ./API/**
+
+defaults:
+  run:
+    working-directory: API
 
 jobs:
-  package:
-    name: Package
-    #Run on Ubuntu using the latest version
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    #Job's steps
     steps:
+      - uses: actions/checkout@v2
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build with Maven
-        run: mvn -B package
-        working-directory: API
-
+          cache: maven
+      - name: Change Permission of Maven Wrapper
+        run: chmod +x mvnw
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+            #Run Tests
+      - name: Run Tests
+        run: ./mvnw -B test
+  build:
+    needs: test
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Change Permission of Maven Wrapper
+        run: chmod +x mvnw
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          #Run Tests
+      - name: Run Build
+        run: ./mvnw -B package -DskipTests --file pom.xml
+      - name: Upload JAR
+        #This uploads artifacts from your workflow allowing you to share data between jobs and store data once a workflow is complete.
+        uses: actions/upload-artifact@v2
+        with:
+          #Set artifact name
+          name: artifact
+          #From this path
+          path: target/data-0.0.1-SNAPSHOT.jar
