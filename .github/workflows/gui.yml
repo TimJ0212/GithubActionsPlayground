@@ -37,6 +37,7 @@ jobs:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: GUI/package-lock.json
+      - run: npm ci
       - run: npm run build
       - name: Upload dist
         #This uploads artifacts from your workflow allowing you to share data between jobs and store data once a workflow is complete.
