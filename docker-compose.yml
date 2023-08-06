@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  gui:
+    container_name: gui
+    build:
+      dockerfile: Dockerfile
+      context: GUI
+    ports:
+      - "80:80"
+  db:
+    container_name: db
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: pw
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+  api:
+    container_name: api
+    depends_on: [db]
+    build:
+      dockerfile: Dockerfile
+      context: API
+    ports:
+      - "8080:8080"
