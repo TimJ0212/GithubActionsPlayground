@@ -1,0 +1,49 @@
+name: GUI Workflow
+run-name: GUI Workflow by @${{ github.actor }}
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    paths:
+      - ./GUI/**
+      - .github/workflows/gui.yml
+
+defaults:
+  run:
+    working-directory: GUI
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: GUI/package-lock.json
+      - run: npm ci
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+      - run: npm test
+  build:
+    needs: test
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: GUI/package-lock.json
+      - run: npm run build
+      - name: Upload dist
+        #This uploads artifacts from your workflow allowing you to share data between jobs and store data once a workflow is complete.
+        uses: actions/upload-artifact@v2
+        with:
+          #Set artifact name
+          name: gui
+          #From this path
+          path: GUI/dist/gui
