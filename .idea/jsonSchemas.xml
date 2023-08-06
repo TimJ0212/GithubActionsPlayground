@@ -14,6 +14,9 @@
                   <Item>
                     <option name="path" value=".github/wokflows/bigOne.yml" />
                   </Item>
+                  <Item>
+                    <option name="path" value=".github/workflows/api.yml" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>
