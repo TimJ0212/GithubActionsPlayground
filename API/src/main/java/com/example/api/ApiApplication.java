@@ -2,9 +2,22 @@ package com.example.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.Map;
 
 @SpringBootApplication
-public class ApiApplication {
+public class ApiApplication  {
+
+    @GetMapping("/user")
+    public ResponseEntity<OAuth2User> user(@AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(principal);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
